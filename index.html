@@ -389,7 +389,7 @@
                 let iq = parseInt(iqCounter.textContent);
                 const interval = setInterval(() => {
                     iq -= 1;
-                    iqCounter.textContent = iq;
+                    iqCounter.textContent = "IQ: " + {iq};
                     
                     if (iq < 50 && iq > 0) {
                         iqCounter.classList.add('glitch');
