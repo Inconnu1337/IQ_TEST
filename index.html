@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQ тест</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Exo 2', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Космический фон */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(10, 15, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.5);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 1.5s ease;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 50, 100, 0.3) 0%, transparent 70%);
+            transform: rotate(30deg);
+            z-index: -1;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.8rem;
+            text-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
+            color: #4fc3f7;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #4fc3f7, transparent);
+            margin: 15px auto;
+            border-radius: 3px;
+        }
+        
+        .question-container {
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .question {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #bbdefb;
+            line-height: 1.5;
+            text-shadow: 0 0 5px rgba(100, 180, 255, 0.5);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .option {
+            background: rgba(30, 40, 70, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-align: center;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            background: rgba(40, 60, 120, 0.8);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 100, 255, 0.4);
+            border-color: rgba(100, 180, 255, 0.4);
+        }
+        
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(100, 180, 255, 0.1), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .option:hover::before {
+            animation: option-shine 0.8s ease;
+        }
+        
+        @keyframes option-shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress {
+            height: 12px;
+            background: rgba(30, 40, 70, 0.7);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #01579b, #4fc3f7, #29b6f6);
+            width: 0%;
+            transition: width 0.7s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.6);
+        }
+        
+        .black-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease;
+        }
+        
+        .glitch-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .iq-counter {
+            font-size: 10rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.7);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .iq-counter.glitch {
+            animation: glitch 0.3s linear infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+            100% { transform: translate(0); }
+        }
+        
+        .message {
+            font-size: 2.5rem;
+            margin-top: 30px;
+            text-align: center;
+            color: #f44336;
+            text-shadow: 0 0 15px rgba(244, 67, 54, 0.7);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 2s ease, transform 2s ease;
+        }
+        
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .question {
+                font-size: 1.3rem;
+            }
+            
+            .iq-counter {
+                font-size: 6rem;
+            }
+            
+            .message {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container" id="testContainer">
+        <h1>Космический IQ Тест</h1>
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="question-container">
+            <div class="question" id="question">Загрузка вопроса...</div>
+            <div class="options" id="options"></div>
+        </div>
+    </div>
+    
+    <div class="black-screen" id="blackScreen">
+        <div class="glitch-container">
+            <div class="iq-counter" id="iqCounter">145</div>
+        </div>
+        <div class="message" id="message">КРИТИЧЕСКИЙ СБОЙ ЯИЧЕК</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            createNebulas();
+            
+            const testContainer = document.getElementById('testContainer');
+            const blackScreen = document.getElementById('blackScreen');
+            const iqCounter = document.getElementById('iqCounter');
+            const message = document.getElementById('message');
+            const questionEl = document.getElementById('question');
+            const optionsEl = document.getElementById('options');
+            const progressBar = document.getElementById('progressBar');
+            const starsContainer = document.getElementById('stars');
+            
+            let questionsAnswered = 0;
+            const totalQuestions = 2;
+            
+            const questions = [
+                {
+                    question: "Какое число должно быть следующим в последовательности: 2, 5, 11, 23, ?",
+                    options: ["46", "47", "48", "49"],
+                    correct: 1
+                },
+                {
+                    question: "Если все Zorgы - это Flurbы, и некоторые Flurbы - это Blipы, то:",
+                    options: ["Все Zorgы - это Blipы", "Некоторые Zorgы могут быть Blipами", "Ни один Zorg не является Blipом", "Все Blipы - это Zorgы"],
+                    correct: 1
+                }
+            ];
+            
+            showQuestion(0);
+            
+            function showQuestion(index) {
+                const q = questions[index];
+                questionEl.textContent = q.question;
+                
+                optionsEl.innerHTML = '';
+                q.options.forEach((option, i) => {
+                    const optionEl = document.createElement('div');
+                    optionEl.className = 'option';
+                    optionEl.textContent = option;
+                    optionEl.addEventListener('click', () => selectAnswer(i, q.correct));
+                    optionsEl.appendChild(optionEl);
+                });
+                
+                progressBar.style.width = `${(index / totalQuestions) * 100}%`;
+            }
+            
+            function selectAnswer(selected, correct) {
+                questionsAnswered++;
+                
+                if (questionsAnswered >= totalQuestions) {
+                    testContainer.style.transform = 'scale(0.5) translateY(-100px)';
+                    testContainer.style.opacity = '0';
+                    
+                    starsContainer.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        blackScreen.style.opacity = '1';
+                        blackScreen.style.pointerEvents = 'all';
+                        startIqDecrease();
+                    }, 1500);
+                } else {
+                    showQuestion(questionsAnswered);
+                }
+            }
+            
+            function startIqDecrease() {
+                let iq = 145;
+                let speed = 100;
+                const interval = setInterval(() => {
+                    iq -= 1;
+                    iqCounter.textContent = iq;
+                    
+                    if (iq % 20 === 0 && speed > 10) {
+                        speed -= 10;
+                        clearInterval(interval);
+                        startIqDecreaseWithSpeed(speed);
+                    }
+                    
+                    if (iq < 50 && iq > 0) {
+                        iqCounter.classList.add('glitch');
+                    }
+                    
+                    if (iq < 30) {
+                        iqCounter.style.color = "#f44336";
+                        iqCounter.style.textShadow = "0 0 20px rgba(244, 67, 54, 0.7)";
+                    } else if (iq < 80) {
+                        iqCounter.style.color = "#ff9800";
+                        iqCounter.style.textShadow = "0 0 20px rgba(255, 152, 0, 0.7)";
+                    } else if (iq < 120) {
+                        iqCounter.style.color = "#ffeb3b";
+                        iqCounter.style.textShadow = "0 0 20px rgba(255, 235, 59, 0.7)";
+                    }
+                    
+                    if (iq <= 0) {
+                        clearInterval(interval);
+                        iqCounter.textContent = "0";
+                        iqCounter.classList.add('glitch');
+                        
+                        setTimeout(() => {
+                            message.style.opacity = '1';
+                            message.style.transform = 'translateY(0)';
+                        }, 1000);
+                    }
+                }, speed);
+            }
+            
+            function startIqDecreaseWithSpeed(speed) {
+                let iq = parseInt(iqCounter.textContent);
+                const interval = setInterval(() => {
+                    iq -= 1;
+                    iqCounter.textContent = iq;
+                    
+                    if (iq < 50 && iq > 0) {
+                        iqCounter.classList.add('glitch');
+                    }
+                    
+                    if (iq < 30) {
+                        iqCounter.style.color = "#f44336";
+                        iqCounter.style.textShadow = "0 0 20px rgba(244, 67, 54, 0.7)";
+                    } else if (iq < 80) {
+                        iqCounter.style.color = "#ff9800";
+                        iqCounter.style.textShadow = "0 0 20px rgba(255, 152, 0, 0.7)";
+                    }
+                    
+                    if (iq <= 0) {
+                        clearInterval(interval);
+                        iqCounter.textContent = "0";
+                        iqCounter.classList.add('glitch');
+                        
+                        setTimeout(() => {
+                            message.style.opacity = '1';
+                            message.style.transform = 'translateY(0)';
+                        }, 1000);
+                    }
+                }, speed);
+            }
+            
+            function createStars() {
+                const stars = document.getElementById('stars');
+                const starsCount = 200;
+                
+                for (let i = 0; i < starsCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    const size = Math.random() * 3;
+                    star.style.width = size + 'px';
+                    star.style.height = size + 'px';
+                    
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    
+                    star.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                    star.style.animationDelay = (Math.random() * 5) + 's';
+                    
+                    stars.appendChild(star);
+                }
+            }
+            
+            function createNebulas() {
+                const colors = ['rgba(41, 182, 246, 0.1)', 'rgba(156, 39, 176, 0.1)', 'rgba(244, 67, 54, 0.1)', 'rgba(76, 175, 80, 0.1)'];
+                
+                for (let i = 0; i < 4; i++) {
+                    const nebula = document.createElement('div');
+                    nebula.className = 'nebula';
+                    
+                    nebula.style.width = (Math.random() * 500 + 300) + 'px';
+                    nebula.style.height = (Math.random() * 500 + 300) + 'px';
+                    
+                    nebula.style.left = Math.random() * 100 + '%';
+                    nebula.style.top = Math.random() * 100 + '%';
+                    
+                    nebula.style.background = colors[i];
+                    
+                    document.body.appendChild(nebula);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
