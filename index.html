@@ -260,7 +260,7 @@
     <div class="stars" id="stars"></div>
     
     <div class="container" id="testContainer">
-        <h1>Космический IQ Тест</h1>
+        <h1>IQ Тест</h1>
         <div class="progress">
             <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -352,7 +352,7 @@
                     iqCounter.textContent = iq;
                     
                     if (iq % 20 === 0 && speed > 10) {
-                        speed -= 10;
+                        speed -= 50;
                         clearInterval(interval);
                         startIqDecreaseWithSpeed(speed);
                     }
